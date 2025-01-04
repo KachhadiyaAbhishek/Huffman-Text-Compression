@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Huffman Compression</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+        h1{
+            text-align: center;
+            padding-bottom: 20px;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        textarea {
+            width: 96%;
+            height: 100px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            display: inline-block;
+            margin-right: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Huffman Compression</h1>
+        <form id="compressionForm">
+            <textarea id="text" name="text" placeholder="Enter text to compress..."></textarea>
+            <button type="button" onclick="compressText()">Compress</button>
+            <button type="button" onclick="decompressText()">Decompress</button>
+        </form>
+        <div class="output">
+            <h3>Output:</h3>
+            <p id="outputText">No output yet.</p>
+        </div>
+    </div>
+
+    <script>
+        async function compressText() {
+            const text = document.getElementById('text').value.trim();
+            if (!text) {
+                alert('Input text cannot be empty.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/compress', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({ text })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    document.getElementById('outputText').innerText = `Compressed Text: ${result.compressed_text}\n\nLength: ${result.compressed_length}`;
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('An error occurred while compressing the text.');
+            }
+        }
+
+        async function decompressText() {
+            try {
+                const response = await fetch('/decompress', {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    document.getElementById('outputText').innerText = `Decompressed Text: ${result.decompressed_text}\n\nLength: ${result.decompressed_length}`;
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('An error occurred while decompressing the text.');
+            }
+        }
+    </script>
+</body>
+</html>
